@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace SKA.Controllers
@@ -20,6 +22,7 @@ namespace SKA.Controllers
             _geoIpService = geoIpService;
         }
 
+        [HttpGet, ServiceFilter(typeof(LogFilter))]
         public async Task<IActionResult> Index()
         {
             var currentIp = await _geoIpService.GetCurrentIpAsync();
@@ -59,5 +62,27 @@ namespace SKA.Controllers
     public class GeoResponse
     {
         public string Ip { get; set; }
+    }
+
+    class LogFilter : ActionFilterAttribute
+    {
+        private readonly ILogger<LogFilter> _logger;
+
+        public LogFilter(ILogger<LogFilter> logger)
+        {
+            _logger = logger;
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            _logger.Log(LogLevel.Information, "in");
+            base.OnActionExecuting(context);
+        }
+
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            base.OnActionExecuted(context);
+            _logger.Log(LogLevel.Information, "out");
+        }
     }
 }
