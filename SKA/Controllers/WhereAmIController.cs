@@ -11,13 +11,13 @@ namespace SKA.Controllers
     [ApiController]
     public class WhereAmIController : ControllerBase
     {
-        public async Task<ActionResult<GeoResponse>> Index()
+        public async Task<IActionResult> Index()
         {
-            return new GeoResponse()
+            return Ok(new
             {
                 Ip = "8.8.8.8",
                 CountryCode = "TW"
-            };
+            });
         }
     }
 
