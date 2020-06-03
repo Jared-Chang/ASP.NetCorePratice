@@ -22,7 +22,7 @@ namespace SKA.Controllers
             _geoIpService = geoIpService;
         }
 
-        [HttpGet, ServiceFilter(typeof(LogFilter))]
+        [HttpGet, ServiceFilter(typeof(LogFilter)), ResponseCache(Duration = 30)]
         public async Task<IActionResult> Index()
         {
             var currentIp = await _geoIpService.GetCurrentIpAsync();

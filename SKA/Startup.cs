@@ -29,6 +29,7 @@ namespace SKA
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddResponseCaching();
             services.AddControllersWithViews();
             services.AddHttpClient<IGeoIpService, GeoIpService>()
                 .AddTransientHttpErrorPolicy(GetRetryPolicy);
@@ -70,6 +71,8 @@ namespace SKA
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseResponseCaching();
 
             app.UseEndpoints(endpoints =>
             {
