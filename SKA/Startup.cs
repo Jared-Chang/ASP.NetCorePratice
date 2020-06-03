@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Polly;
+using Polly.Extensions.Http;
 using SKA.Controllers;
 
 namespace SKA
@@ -26,7 +30,8 @@ namespace SKA
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddHttpClient();
+            services.AddHttpClient<IGeoIpService, GeoIpService>()
+                .AddTransientHttpErrorPolicy(GetRetryPolicy);
             services.AddTransient<IGeoIpService, GeoIpService>();
             services.AddTransient<LogFilter>();
             services.AddSwaggerGen(c => { 
@@ -36,6 +41,14 @@ namespace SKA
                     Version = "v3"
                 });
             });
+        }
+
+        private IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(PolicyBuilder<HttpResponseMessage> arg)
+        {
+            return HttpPolicyExtensions.HandleTransientHttpError()
+                .OrResult(msg =>
+                    msg.StatusCode == HttpStatusCode.GatewayTimeout || msg.StatusCode == HttpStatusCode.RequestTimeout)
+                .WaitAndRetryAsync(3, retryCount => TimeSpan.FromMilliseconds(100));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
