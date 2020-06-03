@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SKA.Controllers;
 
 namespace SKA
 {
@@ -24,6 +25,8 @@ namespace SKA
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddHttpClient();
+            services.AddTransient<IGeoIpService, GeoIpService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
