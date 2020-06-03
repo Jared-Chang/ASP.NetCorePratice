@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using SKA.Controllers;
 
 namespace SKA
@@ -28,6 +29,13 @@ namespace SKA
             services.AddHttpClient();
             services.AddTransient<IGeoIpService, GeoIpService>();
             services.AddTransient<LogFilter>();
+            services.AddSwaggerGen(c => { 
+                c.SwaggerDoc("v3", new OpenApiInfo
+                {
+                    Title = "GTrackAPI",
+                    Version = "v3"
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,6 +64,13 @@ namespace SKA
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v3/swagger.json", "My Api V1");
+            });
+
         }
     }
 }
